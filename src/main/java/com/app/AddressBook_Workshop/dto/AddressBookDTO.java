@@ -9,6 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AddressBookDTO {
+    private Long id;
 
     @NotBlank(message = "Name cannot be empty")
     private String name;
