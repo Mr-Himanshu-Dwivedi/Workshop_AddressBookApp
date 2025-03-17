@@ -1,7 +1,6 @@
 package com.app.AddressBook_Workshop.service;
 
 import com.app.AddressBook_Workshop.dto.AddressBookDTO;
-import com.app.AddressBook_Workshop.model.AddressBookEntry;
 
 import java.util.List;
 import java.util.Optional;

@@ -13,7 +13,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class AddressBookController {
-
     @Autowired
     private IAddressBookService addressBookService;
 
@@ -22,20 +21,17 @@ public class AddressBookController {
         List<AddressBookDTO> contacts = addressBookService.getAllContacts();
         return ResponseEntity.ok(contacts);
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<AddressBookDTO> getContactById(@PathVariable Long id) {
         return addressBookService.getContactById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
     @PostMapping("/new")
     public ResponseEntity<AddressBookDTO> addContact(@Valid @RequestBody AddressBookDTO contactDTO) {
         AddressBookDTO savedContact = addressBookService.addContact(contactDTO);
         return ResponseEntity.ok(savedContact);
     }
-
     @PutMapping("/update/{id}")
     public ResponseEntity<AddressBookDTO> updateContact(@PathVariable Long id,@Valid @RequestBody AddressBookDTO updatedContact) {
         return ResponseEntity.ok(addressBookService.updateContact(id, updatedContact));
