@@ -1,7 +1,6 @@
 package com.app.AddressBook_Workshop.controller;
 
 import com.app.AddressBook_Workshop.dto.AddressBookDTO;
-import com.app.AddressBook_Workshop.model.AddressBookEntry;
 import com.app.AddressBook_Workshop.service.IAddressBookService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,19 +26,22 @@ public class AddressBookController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    @PostMapping("/new")
+
+    @PostMapping("/add")
     public ResponseEntity<AddressBookDTO> addContact(@Valid @RequestBody AddressBookDTO contactDTO) {
-        AddressBookDTO savedContact = addressBookService.addContact(contactDTO);
-        return ResponseEntity.ok(savedContact);
+        AddressBookDTO createdContact = addressBookService.addContact(contactDTO);
+        return ResponseEntity.ok(createdContact);
     }
+
     @PutMapping("/update/{id}")
-    public ResponseEntity<AddressBookDTO> updateContact(@PathVariable Long id,@Valid @RequestBody AddressBookDTO updatedContact) {
-        return ResponseEntity.ok(addressBookService.updateContact(id, updatedContact));
+    public ResponseEntity<AddressBookDTO> updateContact(@PathVariable Long id, @Valid @RequestBody AddressBookDTO contactDTO) {
+        AddressBookDTO updatedContact = addressBookService.updateContact(id, contactDTO);
+        return ResponseEntity.ok(updatedContact);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteContact(@PathVariable Long id) {
+    public ResponseEntity<String> deleteContact(@PathVariable Long id) {
         addressBookService.deleteContact(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Contact deleted successfully.");
     }
 }
