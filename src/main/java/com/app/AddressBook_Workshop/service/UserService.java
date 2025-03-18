@@ -1,17 +1,18 @@
-// UserService.java
 package com.app.AddressBook_Workshop.service;
 
 import com.app.AddressBook_Workshop.dto.UserDTO;
 import com.app.AddressBook_Workshop.model.User;
 import com.app.AddressBook_Workshop.repository.UserRepository;
-import com.app.AddressBook_Workshop.security.JwtUtil;
 import com.app.AddressBook_Workshop.security.PasswordEncoderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
@@ -22,8 +23,7 @@ public class UserService implements IUserService {
     @Autowired
     private PasswordEncoderService passwordEncoderService;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final Map<String, String> resetTokens = new HashMap<>();
 
     @Override
     public String registerUser(UserDTO userDTO) {
@@ -47,7 +47,31 @@ public class UserService implements IUserService {
         if (userOpt.isEmpty() || !passwordEncoderService.matches(password, userOpt.get().getPassword())) {
             throw new RuntimeException("Invalid email or password");
         }
+        return "Login successful";
+    }
 
-        return jwtUtil.generateToken(email);
+    public String forgotPassword(String email) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        String resetToken = UUID.randomUUID().toString();
+        resetTokens.put(email, resetToken);
+        return "Use this token to reset your password: " + resetToken;
+    }
+
+    public String resetPassword(String email, String token, String newPassword) {
+        if (!resetTokens.containsKey(email) || !resetTokens.get(email).equals(token)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid or expired token");
+        }
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        User user = userOpt.get();
+        user.setPassword(passwordEncoderService.encodePassword(newPassword));
+        userRepository.save(user);
+        resetTokens.remove(email);
+        return "Password reset successfully";
     }
 }

@@ -26,4 +26,7 @@ public class User {
 
     @Column(nullable = false)
     private String role;
+
+    @Column(name = "reset_key", unique = true)
+    private String resetKey;
 }
