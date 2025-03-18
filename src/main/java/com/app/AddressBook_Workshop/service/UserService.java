@@ -5,6 +5,7 @@ import com.app.AddressBook_Workshop.model.User;
 import com.app.AddressBook_Workshop.repository.UserRepository;
 import com.app.AddressBook_Workshop.security.JwtUtil;
 import com.app.AddressBook_Workshop.security.PasswordEncoderService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,8 @@ public class UserService implements IUserService {
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     private final Map<String, String> resetTokens = new HashMap<>();
 
@@ -47,6 +50,7 @@ public class UserService implements IUserService {
         user.setRole("USER");
 
         userRepository.save(user);
+        rabbitTemplate.convertAndSend("AddressBookExchange", "userKey", user.getEmail());
         return "User registered successfully!";
     }
 
