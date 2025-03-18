@@ -8,8 +8,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+
+
 @EnableWebSecurity
 @Configuration
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1800)
 public class SecurityConfig {
 
     @Bean
@@ -20,13 +24,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for APIs
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .csrf(csrf->csrf.disable()) // Disable CSRF for APIs
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/register", "/auth/login", "/auth/forgot-password", "/auth/reset-password").permitAll()
+                        .requestMatchers("/api/**","/api/all").permitAll()
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .cors(cors -> cors.disable()); // If needed, disable CORS restrictions
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//                .cors(cors -> cors.disable()); // If needed, disable CORS restrictions
         return http.build();
     }
 

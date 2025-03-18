@@ -3,12 +3,15 @@ package com.app.AddressBook_Workshop.service;
 import com.app.AddressBook_Workshop.dto.UserDTO;
 import com.app.AddressBook_Workshop.model.User;
 import com.app.AddressBook_Workshop.repository.UserRepository;
+import com.app.AddressBook_Workshop.security.JwtUtil;
 import com.app.AddressBook_Workshop.security.PasswordEncoderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -21,7 +24,13 @@ public class UserService implements IUserService {
     private UserRepository userRepository;
 
     @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
     private PasswordEncoderService passwordEncoderService;
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     private final Map<String, String> resetTokens = new HashMap<>();
 
@@ -47,7 +56,14 @@ public class UserService implements IUserService {
         if (userOpt.isEmpty() || !passwordEncoderService.matches(password, userOpt.get().getPassword())) {
             throw new RuntimeException("Invalid email or password");
         }
-        return "Login successful";
+
+        // Generate JWT Token
+        String token = jwtUtil.generateToken(email);
+
+        // Store token in Redis for session management (2-hour expiration)
+        redisTemplate.opsForValue().set("session:" + email, token, Duration.ofHours(2));
+
+        return token;
     }
 
     public String forgotPassword(String email) {
@@ -73,5 +89,13 @@ public class UserService implements IUserService {
         userRepository.save(user);
         resetTokens.remove(email);
         return "Password reset successfully";
+    }
+
+    public void logoutUser(String email) {
+        redisTemplate.delete("session:" + email);
+    }
+
+    public boolean isUserLoggedIn(String email) {
+        return redisTemplate.hasKey("session:" + email);
     }
 }
