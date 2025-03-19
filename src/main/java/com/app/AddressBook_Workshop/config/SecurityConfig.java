@@ -28,9 +28,10 @@ public class SecurityConfig {
                 .csrf(csrf->csrf.disable()) // Disable CSRF for APIs
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/register", "/auth/login", "/auth/forgot-password", "/auth/reset-password").permitAll()
-//                        .requestMatchers("/api/**","/api/all").permitAll()
+                        .requestMatchers("/api/**","/api/all").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll() // Allow Swagger
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated() // Protect All Other Endpoints
+
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 //                .cors(cors -> cors.disable()); // If needed, disable CORS restrictions
