@@ -16,7 +16,7 @@ import java.util.List;
 
 @Tag(name = "Address Book API", description = "Manage Address Book Entries")
 @RestController
-@PreAuthorize("hasRole('USER')")
+//@PreAuthorize("hasRole('USER')")
 @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully"),
         @ApiResponse(responseCode = "201", description = "Contact created successfully"),
