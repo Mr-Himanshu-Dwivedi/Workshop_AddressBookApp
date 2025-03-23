@@ -16,16 +16,16 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'adoptopenjdk'
 
       - name: Cache SonarCloud Dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar-${{ hashFiles('**/*.java') }}
@@ -33,7 +33,7 @@ jobs:
             ${{ runner.os }}-sonar-
 
       - name: Run SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@v1
+        uses: sonarsource/sonarcloud-github-action@v3
         with:
           organization: 'Himanshu Dwivedi'
           projectKey: 'mr-himanshu-dwivedi'
